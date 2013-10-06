@@ -18,4 +18,31 @@ else
   let b:undo_ftplugin = "setl cms< com< fo< flp<"
 endif
 
+" Markdown auto lists
+function! AutoMDList()
+  let line=getline('.')
+  let umatches=matchstr(line, '^-')
+  let omatches=matchstr(line, '^\d\+\.')
+  if empty(umatches) && empty(omatches)
+    exec ':normal! o ' | exec ':startinsert!' | call feedkeys("\<right>\<bs>")
+  elseif empty(omatches)
+    if !empty(matchstr(line, '^-\s\?$'))
+      exec ':normal! cc' | exec ':normal! o' | exec ':startinsert!'
+    else
+      exec ':normal! o- ' | exec ':startinsert!'
+    endif
+  elseif empty(umatches)
+    if !empty(matchstr(line, '^\d\+\.\s\?$'))
+      exec ':normal! cc' | exec ':normal! o' | exec ':startinsert!'
+    else
+      let l:nln=omatches + 1
+      exec ':normal! o' . l:nln . '. ' | exec ':startinsert!'
+    endif
+  endif
+
+  return
+endf
+
+au BufEnter *.md inoremap <buffer> <CR> <C-o>:call AutoMDList()<CR>
+
 " vim:set sw=2:
